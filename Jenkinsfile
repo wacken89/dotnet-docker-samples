@@ -1,6 +1,6 @@
 #!/bin/groovy
 
-node('build'){
+node('master'){
     stage('Setup') {
         def success = false
         try {
@@ -25,7 +25,7 @@ node('build'){
     stage('Build Backend Image') {
         def success = false
         try {
-            docker.build("wacken/workshop:aspnet-${branchNameCORE}-${env.BUILD_NUMBER}", '-f aspnet/Dockerfile .')
+            docker.build("wacken/workshop:aspnet-${branchNameCORE}-${env.BUILD_NUMBER}")
             success = true
         } catch (e) {
             currentBuild.result = 'FAILURE'
