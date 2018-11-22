@@ -1,4 +1,3 @@
-
 #!/bin/groovy
 
 node('build'){
