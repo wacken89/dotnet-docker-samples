@@ -32,6 +32,7 @@ stage("set-display-name") {
 if (env.deployment_environment) {
     stage("deploy") {
         def envName = env.deployment_environment
+        dockerTag = "${branchNameCORE}-${triggerBuild.number}"
         node('master') {
             try {
                 git branch: 'master', credentialsId: '', url: 'https://github.com/wacken89/dotnet-docker-samples.git'
