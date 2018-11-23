@@ -1,0 +1,25 @@
+NAME:   aspnet-master-1
+LAST DEPLOYED: Fri Nov 23 14:06:22 2018
+NAMESPACE: asp
+STATUS: DEPLOYED
+
+RESOURCES:
+==> v1/Service
+NAME             AGE
+aspnet-master-1  0s
+
+==> v1beta2/Deployment
+aspnet-master-1  0s
+
+==> v1beta1/Ingress
+aspnet-master-1  0s
+
+==> v1/Pod(related)
+
+NAME                              READY  STATUS             RESTARTS  AGE
+aspnet-master-1-76cb6bf7bf-sv62q  0/1    ContainerCreating  0         0s
+
+
+NOTES:
+1. Get the application URL by running these commands:
+  http://asp-master-1.stg.workshop.kruschecloud.com/

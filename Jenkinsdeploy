@@ -1,0 +1,95 @@
+#! /bin/groovy
+
+buildPipelineFolder='dotnet-docker-samples'
+artifactStore = 'http://api-jenkins.knnlab.com'
+buildArtifactsStore = ''
+displaySuffix = ''
+
+repositoryUrl = 'git@github.com:wacken89/dotnet-docker-samples.git'
+
+stage("set-display-name") {
+    def triggerBuild = getTriggerBuild()
+    buildArtifactsStore = "${artifactStore}/${triggerBuild.project.fullName}/builds/${triggerBuild.number}/archive/site/build/distributions/packaged.zip"
+    def envDisplay = env.deployment_environment ? " - ${env.deployment_environment}" : ''
+    displaySuffix = " (${triggerBuild.project.name} #${triggerBuild.number})"
+    def nearestUp = getNearestUpstreamBuild()
+    nearestUp.displayName = "${nearestUp.displayName}${displaySuffix}"
+    currentBuild.displayName = "${currentBuild.displayName}${displaySuffix}${envDisplay}"
+    def branchName = ("${triggerBuild.project.name}")
+    if (branchName.contains('%2F')){
+            branchNameCORE = branchName.replace("%2F", "-")
+    } else {
+            branchNameCORE = branchName
+    }
+    dockerTag = "${branchNameCORE}-${triggerBuild.number}"
+    echo "${dockerTag}"
+    triggerBuild = null
+    nearestUp = null
+    
+    echo "${buildArtifactsStore}"
+}
+
+if (env.deployment_environment) {
+    stage("deploy") {
+        def envName = env.deployment_environment
+        lock("core-deploy-${envName}") {
+            node('master') {
+                try {
+                    git branch: 'master', credentialsId: '78f6706d-d46c-47c6-8aa7-b07791c70dbe', url: 'git@github.com:wacken89/dotnet-docker-samples.git'
+                    sh apiDeploy(envName,dockerTag)
+                } catch (e) {
+                    throw e
+                } finally {
+                    cleanWs()
+                }
+            }
+        }
+    }
+}
+
+def getTriggerBuild() {
+    def run
+    for (cause in currentBuild.rawBuild.getAction(CauseAction.class).causes) {
+        run = getTriggerBuild(cause)
+        if (run) break
+    }          
+    if (!run) {
+        error "Could not find build run"
+    }
+    run
+}
+
+def getTriggerBuild(cause) {
+    if (cause.class.toString().contains("UpstreamCause")) {
+        if (cause.upstreamRun.project?.parent?.fullName == buildPipelineFolder) {
+            return cause.upstreamRun
+        }
+        for (upCause in cause.upstreamCauses) {
+            def run = getTriggerBuild(upCause)
+            if (run) return run
+        }
+    }
+}
+
+
+def getNearestUpstreamBuild() {
+    def run
+    for (cause in currentBuild.rawBuild.getAction(CauseAction.class).causes) {
+        if (cause.class.toString().contains("UpstreamCause")) {
+            run = cause.upstreamRun
+            break
+        }
+    }
+    if (!run) {
+        error "Could not find build run"
+    }
+    run
+}
+
+
+String apiDeploy(String env, number) {
+    """
+        aws ecr get-login --no-include-email --region eu-west-1| sh
+        echo "test"
+    """
+}

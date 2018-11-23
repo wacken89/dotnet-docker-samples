@@ -22,7 +22,7 @@ node('master'){
         }
     }
 
-    stage('Build Backend Image') {
+    stage('Build Image') {
         def success = false
         try {
             docker.build("wacken/workshop:aspnet-${branchNameCORE}-${env.BUILD_NUMBER}")
@@ -34,6 +34,26 @@ node('master'){
             if (!success)
                 notifySlack(currentBuild.result)
         }
+    }
+
+    stage('Push Image') {
+        def success = false
+        try {
+            withDockerRegistry(credentialsId: 'a045a5e3-46af-4eb6-a9c6-27bc116f3ffd', url: '') {
+                docker.image("wacken/workshop:aspnet-${branchNameCORE}-${env.BUILD_NUMBER}").push()
+            }
+            success = true
+        } catch (e) {
+            currentBuild.result = 'FAILURE'
+            throw e
+        } finally {
+            if (!success)
+                notifySlack(currentBuild.result)
+        }
+    }
+
+    stage('Init deploy') {
+            build 'deploy/start-prod'
     }
 }
 
