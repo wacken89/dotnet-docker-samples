@@ -35,7 +35,7 @@ if (env.deployment_environment) {
         node('master') {
             try {
                 git branch: 'master', credentialsId: '', url: 'https://github.com/wacken89/dotnet-docker-samples.git'
-                withCredentials([kubeconfigContent(credentialsId: '02aa6586-30ea-4d85-803f-08e3de6a7954', variable: 'KUBECONFIG_CONTENT')]) {
+                withCredentials([kubeconfigContent(credentialsId: '02aa6586-30ea-4d85-803f-08e3de6a7954', variable: 'KUBECONFIG')]) {
                     sh 'kubectl get nodes'
                 }
             } catch (e) {
