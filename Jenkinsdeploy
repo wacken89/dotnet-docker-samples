@@ -32,16 +32,14 @@ stage("set-display-name") {
 if (env.deployment_environment) {
     stage("deploy") {
         def envName = env.deployment_environment
-        lock("core-deploy-${envName}") {
-            node('master') {
-                try {
-                    git branch: 'master', credentialsId: '78f6706d-d46c-47c6-8aa7-b07791c70dbe', url: 'git@github.com:wacken89/dotnet-docker-samples.git'
-                    sh 'echo test'
-                } catch (e) {
-                    throw e
-                } finally {
-                    cleanWs()
-                }
+        node('master') {
+            try {
+                git branch: 'master', credentialsId: '', url: 'https://github.com/wacken89/dotnet-docker-samples.git'
+                sh 'echo test'
+            } catch (e) {
+                throw e
+            } finally {
+                cleanWs()
             }
         }
     }
