@@ -36,7 +36,7 @@ if (env.deployment_environment) {
             node('master') {
                 try {
                     git branch: 'master', credentialsId: '78f6706d-d46c-47c6-8aa7-b07791c70dbe', url: 'git@github.com:wacken89/dotnet-docker-samples.git'
-                    sh apiDeploy(envName,dockerTag)
+                    sh 'echo test'
                 } catch (e) {
                     throw e
                 } finally {
