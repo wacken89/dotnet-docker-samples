@@ -37,7 +37,7 @@ if (env.deployment_environment) {
                 git branch: 'master', credentialsId: '', url: 'https://github.com/wacken89/dotnet-docker-samples.git'
                 if (env.deployment_environment == "stg") {
                     withCredentials([kubeconfigContent(credentialsId: '02aa6586-30ea-4d85-803f-08e3de6a7954', variable: 'KUBECONFIG_CONTENT')]) {
-                        sh '''echo "$KUBECONFIG_CONTENT" > kubeconfig && export KUBECONFIG=kubeconfig && helm install --name ${dockerTag} --set ingress.hosts={${dockerTag}.stg.workshop.kruschecloud.com} --namespace asp ./asp'''
+                        sh '''echo "$KUBECONFIG_CONTENT" > kubeconfig && export KUBECONFIG=kubeconfig && /usr/local/bin/helm install --name ${dockerTag} --set ingress.hosts={${dockerTag}.stg.workshop.kruschecloud.com} --namespace asp ./asp'''
                     }
                 }
             } catch (e) {
